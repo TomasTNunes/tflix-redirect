@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TFLIX has moved to tflix.stream</title>
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://tflix.stream/" />
+  <noscript><meta http-equiv="refresh" content="0;url=https://tflix.stream/" /></noscript>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0d; --bg-elev: #111116; --line: rgba(255,255,255,0.08);
+      --accent: #e50914; --accent-h: #ff222e; --text: #f4f4f7; --muted: #9a9aa6;
+    }
+    body {
+      min-height: 100vh; display: grid; place-items: center; padding: 1.5rem 1rem;
+      background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      width: 100%; max-width: 440px; text-align: center;
+      padding: 2.4rem 2rem 2rem; border-radius: 16px;
+      background: var(--bg-elev); border: 1px solid var(--line);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.85);
+      /* Hidden while the redirect happens, so browsers never see a flash */
+      opacity: 0; transition: opacity .3s;
+    }
+    .stuck .card { opacity: 1; }
+    .logo {
+      font-size: 2.2rem; font-weight: 800; letter-spacing: -0.04em; color: var(--accent);
+      text-shadow: 0 0 26px rgba(229,9,20,0.55); margin-bottom: 1.2rem;
+    }
+    h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+    p { font-size: 0.95rem; line-height: 1.55; color: var(--muted); }
+    p b { color: var(--text); }
+    .btn {
+      display: block; margin-top: 1.4rem; padding: 0.85rem 1rem; border-radius: 8px;
+      background: #fff; color: #0a0a0d; font-weight: 700; text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .btn:hover { background: rgba(255,255,255,0.85); transform: translateY(-2px); }
+    .btn.ghost { margin-top: 0.6rem; background: rgba(70,70,80,0.75); color: #fff; }
+    .btn.ghost:hover { background: var(--accent); }
+    .app { margin-top: 1.8rem; padding-top: 1.4rem; border-top: 1px solid var(--line); }
+    .app h2 { font-size: 1rem; margin-bottom: 0.4rem; }
+    .url { display: block; margin-top: 0.8rem; font-size: 0.8rem; color: var(--muted); word-break: break-all; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="logo">TFLIX</div>
+    <h1>TFLIX has moved</h1>
+    <p>TFLIX now lives at <b>tflix.stream</b>.</p>
+    <a class="btn" id="go" href="https://tflix.stream/">Go to tflix.stream</a>
+
+    <div class="app">
+      <h2>Using the TFLIX app?</h2>
+      <p>This version can't open the new address. Download the latest version to keep watching.</p>
+      <!-- Opens in the system browser: old apps let links to this repo through -->
+      <a class="btn ghost" href="https://github.com/TomasTNunes/tflix/releases/latest" target="_blank" rel="noopener">Download the latest app</a>
+      <span class="url">github.com/TomasTNunes/tflix/releases</span>
+    </div>
+  </main>
+
+  <!-- At the end of <body> on purpose: starting a navigation stops the page
+       from being parsed, so a blocked redirect (old apps) would leave a blank
+       page if this ran before the message existed. -->
+  <script>
+  /* ─── REDIRECT ───
+     TFLIX moved from tflix.nunesnetwork.com to tflix.stream. Every path
+     here (this page doubles as 404.html) goes to the same path and query
+     on the new domain, e.g. /stream/?type=movie&id=550 keeps working.
+
+     Browsers keep saved data per domain, so guests' My List and server
+     choice are handed over in the URL fragment (#import=…), which never
+     leaves the browser. It's sent on every visit: the new site imports it
+     only once, and this page can't tell whether the redirect got through
+     (old app versions block it — see below). */
+  (function () {
+    var target = 'https://tflix.stream' + location.pathname + location.search;
+
+    try {
+      var data = { v: 1 };
+      var list = localStorage.getItem('tflix_mylist');
+      var server = localStorage.getItem('tflix_server');
+      if (list) data.list = JSON.parse(list);
+      if (server) data.server = server;
+      if (data.list || data.server) {
+        // base64url of the UTF-8 JSON (titles can hold any character)
+        var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
+          .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        target += '#import=' + b64;
+      }
+    } catch (e) { /* no storage or unreadable data: redirect without it */ }
+
+    document.getElementById('go').href = target;
+    location.replace(target);
+
+    /* Old TFLIX app versions only let their window stay on this domain, so
+       the redirect above is blocked and the page stays put. Show the
+       "moved / update the app" message in that case; a browser has long
+       left by then. */
+    setTimeout(function () { document.documentElement.classList.add('stuck'); }, 1500);
+  })();
+  </script>
+</body>
+</html>
