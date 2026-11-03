@@ -10,6 +10,8 @@ whose only page sends visitors on to the new domain.
 - **Guests' saved data comes along.** Browsers keep localStorage per domain, so the page passes
   My List (`tflix_mylist`) and the chosen server (`tflix_server`) in the URL fragment
   (`#import=<base64url JSON>`), which never leaves the browser. The new site imports it once.
+  It also says whether the browser was signed in (`tflix_signed_in`), so the new site can ask
+  to sign in again — login sessions can't move between domains.
 - **Old app versions** only allow their window to stay on the old domain, so the redirect is
   blocked there. After a moment the page shows a "TFLIX has moved, update the app" message whose
   download link opens in the system browser.
